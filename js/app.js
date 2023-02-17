@@ -11,6 +11,9 @@ loadEventListeners();
 function loadEventListeners() {
     //cuando aggregas u ncurso
     listCursos.addEventListener('click', addCourse); //addCourse agrega un curso
+
+    //elimina cursos del carrito
+    car.addEventListener('click', deleteCourse);
 }
 
 
@@ -27,6 +30,11 @@ function addCourse(e) {
 
 };
 
+//Eliminar Curso del Carrito
+function deleteCourse (){
+    console.log('deleting');
+}
+
 //lee el contenido del curso y lo extrae
 function readDateCourse(curso) {
 
@@ -37,10 +45,29 @@ function readDateCourse(curso) {
         titulo: curso.querySelector('h4').textContent,
         precio: curso.querySelector('.precio span').textContent,
         id: curso.querySelector('a').getAttribute('data-id'),
+        cantidad: 1
     }
 
-    //Agrego elemento al arreglo del carrito
-    addArticlesCart = [...addArticlesCart, infoCurso,];
+    //Verificar si el producto ya existe en el carrito
+    const existe = addArticlesCart.some(curso => curso.id === infoCurso.id);
+    if (existe) {
+        //actualizamos la cantidad
+        const cursos = addArticlesCart.map( curso => {
+            if (curso.id === infoCurso.id){
+                curso.cantidad++;
+                return curso; //retorna el objecto actualizado
+            } else {
+                return curso; // retoran objecto no duplicados 
+            }
+        });
+        addArticlesCart = [...cursos];
+
+    } else {
+        //agregamos al carrito
+        //Agrego elemento al arreglo del carrito
+        addArticlesCart = [...addArticlesCart, infoCurso,];
+
+    }
 
     console.log(addArticlesCart);
 
@@ -55,10 +82,18 @@ function carritoHTML() {
 
     //recorre el carrito y genera el html
     addArticlesCart.forEach(curso => {
+        const { imagen, titulo, precio, cantidad, id } = curso;
+
         const row = document.createElement('tr');
         row.innerHTML = `
+            <td> 
+                <img src="${imagen}" width="100">
+             </td>
+            <td>${titulo}</td>
+            <td>${precio}</td>
+            <td>${cantidad}</td>
             <td>
-                ${curso.titulo}
+                <a href="#" class="borrar-curso" data-id="${id}"> X </a> 
             </td>
         
         `;
@@ -69,12 +104,12 @@ function carritoHTML() {
 }
 
 //elimina los curso del Tbody
-function limpiarHtml(){
+function limpiarHtml() {
 
     //forma lenta
     // contCar.innerHTML = '';
 
-    while(contCar.firstChild){
+    while (contCar.firstChild) {
         contCar.removeChild(contCar.firstChild);
     }
 }
